@@ -1,0 +1,464 @@
+
+import javax.swing.JOptionPane;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+/**
+ *
+ * @author muham
+ */
+public class FormAbsensi extends javax.swing.JFrame {
+
+    /**
+     * Creates new form FormAbsensi
+     */
+    public FormAbsensi() {
+        initComponents();
+        tampilkanDataAbsensi();
+        tampilkanDataAbsensi(); // Menampilkan data absensi ke tabel
+        isiComboBoxKaryawan();  // Mengisi ComboBox dengan data karyawan
+    }
+
+    private boolean validasiTanggal(String tanggal) {
+        return tanggal.matches("\\d{4}-\\d{2}-\\d{2}");
+    }
+
+    private void isiComboBoxKaryawan() {
+        try {
+            String sql = "SELECT nama FROM karyawan";
+            Connection conn = config.Koneksi.getKoneksi();
+            Statement stm = conn.createStatement();
+            ResultSet res = stm.executeQuery(sql);
+
+            while (res.next()) {
+                cmbKaryawanAbsensi.addItem(res.getString("nama")); // Tambahkan nama karyawan ke ComboBox
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Error saat mengisi ComboBox: " + e.getMessage());
+        }
+    }
+
+    private void exportToCSV() {
+        try {
+            FileWriter writer = new FileWriter("absensi.csv");
+            writer.append("ID,Nama Karyawan,Tanggal,Status\n");
+
+            for (int i = 0; i < tblAbsensi.getRowCount(); i++) {
+                writer.append(tblAbsensi.getValueAt(i, 0).toString()); // ID
+                writer.append(",");
+                writer.append(tblAbsensi.getValueAt(i, 1).toString()); // Nama Karyawan
+                writer.append(",");
+                writer.append(tblAbsensi.getValueAt(i, 2).toString()); // Tanggal
+                writer.append(",");
+                writer.append(tblAbsensi.getValueAt(i, 3).toString()); // Status
+                writer.append("\n");
+            }
+
+            writer.flush();
+            writer.close();
+            JOptionPane.showMessageDialog(null, "Data berhasil diekspor ke file absensi.csv!");
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(null, "Error saat mengekspor data: " + e.getMessage());
+        }
+    }
+
+    private void tampilkanDataAbsensi() {
+        DefaultTableModel model = new DefaultTableModel();
+        model.addColumn("ID");
+        model.addColumn("Nama Karyawan");
+        model.addColumn("Tanggal");
+        model.addColumn("Status");
+
+        try {
+            String sql = "SELECT absensi.id_absensi, karyawan.nama, absensi.tanggal, absensi.status "
+                    + "FROM absensi JOIN karyawan ON absensi.id_karyawan = karyawan.id_karyawan";
+            Connection conn = config.Koneksi.getKoneksi();
+            Statement stm = conn.createStatement();
+            ResultSet res = stm.executeQuery(sql);
+
+            while (res.next()) {
+                model.addRow(new Object[]{
+                    res.getString(1), // ID Absensi
+                    res.getString(2), // Nama Karyawan
+                    res.getDate(3), // Tanggal
+                    res.getString(4) // Status
+                });
+            }
+            tblAbsensi.setModel(model);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Error: " + e.getMessage());
+        }
+    }
+
+    private int getIdKaryawanDariComboBox() {
+        int id = 0; // Variabel untuk menyimpan ID karyawan
+        String namaKaryawan = (String) cmbKaryawanAbsensi.getSelectedItem(); // Ambil nama karyawan dari ComboBox
+
+        try {
+            String sql = "SELECT id_karyawan FROM karyawan WHERE nama = ?";
+            Connection conn = config.Koneksi.getKoneksi();
+            PreparedStatement pst = conn.prepareStatement(sql);
+            pst.setString(1, namaKaryawan); // Masukkan nama karyawan ke query
+            ResultSet res = pst.executeQuery();
+
+            if (res.next()) {
+                id = res.getInt("id_karyawan"); // Ambil ID karyawan
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Error saat mengambil ID karyawan: " + e.getMessage());
+        }
+
+        return id;
+    }
+
+    private void resetForm() {
+        txtIdAbsensi.setText("");
+        cmbKaryawanAbsensi.setSelectedIndex(0);
+        txtTanggalAbsensi.setText(""); // Kosongkan TextField tanggal
+        cmbStatus.setSelectedIndex(0);
+    }
+
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        jPanel1 = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
+        cmbKaryawanAbsensi = new javax.swing.JComboBox<>();
+        cmbStatus = new javax.swing.JComboBox<>();
+        txtTanggalAbsensi = new javax.swing.JTextField();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        tblAbsensi = new javax.swing.JTable();
+        btnKembali = new javax.swing.JButton();
+        btnExport = new javax.swing.JButton();
+        btnRefresh = new javax.swing.JButton();
+        btnHapus = new javax.swing.JButton();
+        btnEdit = new javax.swing.JButton();
+        btnTambah = new javax.swing.JButton();
+        jLabel5 = new javax.swing.JLabel();
+        txtIdAbsensi = new javax.swing.JTextField();
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+
+        jLabel1.setFont(new java.awt.Font("Times New Roman", 1, 24)); // NOI18N
+        jLabel1.setText("Kelola Absensi");
+
+        jLabel2.setText("Nama Karyawan");
+
+        jLabel3.setText("Tanggal (YYYY/MM/DD)");
+
+        jLabel4.setText("Status");
+
+        cmbStatus.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Hadir", "Izin", "Sakit", "Tanpa Ket" }));
+
+        tblAbsensi.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
+        ));
+        tblAbsensi.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tblAbsensiMouseClicked(evt);
+            }
+        });
+        jScrollPane1.setViewportView(tblAbsensi);
+
+        btnKembali.setText("Kembali");
+        btnKembali.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnKembaliActionPerformed(evt);
+            }
+        });
+
+        btnExport.setText("Report");
+        btnExport.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnExportActionPerformed(evt);
+            }
+        });
+
+        btnRefresh.setText("Refresh");
+
+        btnHapus.setText("Hapus");
+        btnHapus.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnHapusActionPerformed(evt);
+            }
+        });
+
+        btnEdit.setText("Edit");
+        btnEdit.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnEditActionPerformed(evt);
+            }
+        });
+
+        btnTambah.setText("Tambah");
+        btnTambah.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnTambahActionPerformed(evt);
+            }
+        });
+
+        jLabel5.setText("ID");
+
+        txtIdAbsensi.setEditable(false);
+        txtIdAbsensi.setText("Otomatis");
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane1)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel1)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(btnTambah)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(btnEdit)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(btnHapus)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(btnRefresh)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(btnExport)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(btnKembali))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel3)
+                                    .addComponent(jLabel4)
+                                    .addComponent(jLabel2)
+                                    .addComponent(jLabel5))
+                                .addGap(143, 143, 143)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(txtIdAbsensi, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                        .addComponent(txtTanggalAbsensi)
+                                        .addComponent(cmbKaryawanAbsensi, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(cmbStatus, 0, 229, Short.MAX_VALUE)))))
+                        .addGap(0, 320, Short.MAX_VALUE)))
+                .addContainerGap())
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel1)
+                .addGap(38, 38, 38)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel5)
+                    .addComponent(txtIdAbsensi, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel2)
+                    .addComponent(cmbKaryawanAbsensi, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(27, 27, 27)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel3)
+                    .addComponent(txtTanggalAbsensi, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(25, 25, 25)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel4)
+                    .addComponent(cmbStatus, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 86, Short.MAX_VALUE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnKembali)
+                    .addComponent(btnExport)
+                    .addComponent(btnRefresh)
+                    .addComponent(btnHapus)
+                    .addComponent(btnEdit)
+                    .addComponent(btnTambah))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+        );
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+
+        pack();
+    }// </editor-fold>//GEN-END:initComponents
+
+    private void btnTambahActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTambahActionPerformed
+        try {
+            String tanggal = txtTanggalAbsensi.getText(); // Ambil tanggal dari TextField
+            if (!tanggal.matches("\\d{4}-\\d{2}-\\d{2}")) { // Validasi format YYYY-MM-DD
+                JOptionPane.showMessageDialog(null, "Format tanggal harus YYYY-MM-DD!");
+                return;
+            }
+
+            String sql = "INSERT INTO absensi (id_karyawan, tanggal, status) VALUES (?, ?, ?)";
+            Connection conn = config.Koneksi.getKoneksi();
+            PreparedStatement pst = conn.prepareStatement(sql);
+
+            pst.setInt(1, getIdKaryawanDariComboBox());
+            pst.setString(2, tanggal); // Gunakan tanggal dari TextField
+            pst.setString(3, cmbStatus.getSelectedItem().toString());
+
+            pst.execute();
+            JOptionPane.showMessageDialog(null, "Data absensi berhasil ditambahkan!");
+            tampilkanDataAbsensi();
+            resetForm();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Error: " + e.getMessage());
+        }
+    }//GEN-LAST:event_btnTambahActionPerformed
+
+    private void btnEditActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditActionPerformed
+        try {
+            String tanggal = txtTanggalAbsensi.getText(); // Ambil tanggal dari TextField
+            if (!tanggal.matches("\\d{4}-\\d{2}-\\d{2}")) { // Validasi format YYYY-MM-DD
+                JOptionPane.showMessageDialog(null, "Format tanggal harus YYYY-MM-DD!");
+                return;
+            }
+
+            String sql = "UPDATE absensi SET id_karyawan=?, tanggal=?, status=? WHERE id_absensi=?";
+            Connection conn = config.Koneksi.getKoneksi();
+            PreparedStatement pst = conn.prepareStatement(sql);
+
+            pst.setInt(1, getIdKaryawanDariComboBox());
+            pst.setString(2, tanggal); // Gunakan tanggal dari TextField
+            pst.setString(3, cmbStatus.getSelectedItem().toString());
+            pst.setInt(4, Integer.parseInt(txtIdAbsensi.getText()));
+
+            pst.execute();
+            JOptionPane.showMessageDialog(null, "Data absensi berhasil diperbarui!");
+            tampilkanDataAbsensi();
+            resetForm();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Error: " + e.getMessage());
+        }
+    }//GEN-LAST:event_btnEditActionPerformed
+
+    private void tblAbsensiMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblAbsensiMouseClicked
+        int row = tblAbsensi.getSelectedRow();
+        txtIdAbsensi.setText(tblAbsensi.getValueAt(row, 0).toString());
+        cmbKaryawanAbsensi.setSelectedItem(tblAbsensi.getValueAt(row, 1).toString());
+        txtTanggalAbsensi.setText(tblAbsensi.getValueAt(row, 2).toString()); // Tanggal langsung ditampilkan
+        cmbStatus.setSelectedItem(tblAbsensi.getValueAt(row, 3).toString());
+    }//GEN-LAST:event_tblAbsensiMouseClicked
+
+    private void btnKembaliActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnKembaliActionPerformed
+        new HalamanUtama().setVisible(true);
+        this.dispose(); // Menutup form saat ini
+    }//GEN-LAST:event_btnKembaliActionPerformed
+
+    private void btnExportActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExportActionPerformed
+        exportToCSV();
+    }//GEN-LAST:event_btnExportActionPerformed
+
+    private void btnHapusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnHapusActionPerformed
+        try {
+            String sql = "DELETE FROM absensi WHERE id_absensi=?";
+            Connection conn = config.Koneksi.getKoneksi();
+            PreparedStatement pst = conn.prepareStatement(sql);
+
+            pst.setInt(1, Integer.parseInt(txtIdAbsensi.getText())); // ID Absensi dari tabel
+            pst.execute();
+            JOptionPane.showMessageDialog(null, "Data absensi berhasil dihapus!");
+            tampilkanDataAbsensi();
+            resetForm();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Error: " + e.getMessage());
+        }
+    }//GEN-LAST:event_btnHapusActionPerformed
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+        /* Set the Nimbus look and feel */
+        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         */
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ClassNotFoundException ex) {
+            java.util.logging.Logger.getLogger(FormAbsensi.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (InstantiationException ex) {
+            java.util.logging.Logger.getLogger(FormAbsensi.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            java.util.logging.Logger.getLogger(FormAbsensi.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(FormAbsensi.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        //</editor-fold>
+
+        /* Create and display the form */
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                new FormAbsensi().setVisible(true);
+            }
+        });
+    }
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnEdit;
+    private javax.swing.JButton btnExport;
+    private javax.swing.JButton btnHapus;
+    private javax.swing.JButton btnKembali;
+    private javax.swing.JButton btnRefresh;
+    private javax.swing.JButton btnTambah;
+    private javax.swing.JComboBox<String> cmbKaryawanAbsensi;
+    private javax.swing.JComboBox<String> cmbStatus;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTable tblAbsensi;
+    private javax.swing.JTextField txtIdAbsensi;
+    private javax.swing.JTextField txtTanggalAbsensi;
+    // End of variables declaration//GEN-END:variables
+}

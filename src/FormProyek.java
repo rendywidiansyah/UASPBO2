@@ -1,0 +1,483 @@
+
+import java.io.FileWriter;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+/**
+ *
+ * @author muham
+ */
+public class FormProyek extends javax.swing.JFrame {
+
+    /**
+     * Creates new form FormProyek
+     */
+    public FormProyek() {
+        initComponents();
+        tampilkanDataProyek();
+        isiComboBoxKaryawan(); // Mengisi ComboBox dengan data karyawan
+    }
+
+    private int getIdKaryawanDariComboBox() {
+        int id = 0; // Variabel untuk menyimpan ID karyawan
+        String namaKaryawan = (String) cmbKaryawan.getSelectedItem(); // Ambil nama karyawan dari ComboBox
+
+        try {
+            String sql = "SELECT id_karyawan FROM karyawan WHERE nama = ?";
+            Connection conn = config.Koneksi.getKoneksi();
+            PreparedStatement pst = conn.prepareStatement(sql);
+            pst.setString(1, namaKaryawan);
+            ResultSet res = pst.executeQuery();
+
+            if (res.next()) {
+                id = res.getInt("id_karyawan"); // Ambil ID karyawan
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Error saat mengambil ID karyawan: " + e.getMessage());
+        }
+
+        return id;
+    }
+
+    private void isiComboBoxKaryawan() {
+        try {
+            String sql = "SELECT nama FROM karyawan";
+            Connection conn = config.Koneksi.getKoneksi();
+            Statement stm = conn.createStatement();
+            ResultSet res = stm.executeQuery(sql);
+
+            while (res.next()) {
+                cmbKaryawan.addItem(res.getString("nama")); // Tambahkan nama karyawan ke ComboBox
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Error saat mengisi ComboBox: " + e.getMessage());
+        }
+    }
+
+    private void resetForm() {
+        txtIdProyek.setText("");
+        txtNamaProyek.setText("");
+        txtDeskripsi.setText("");
+        txtDurasi.setText("");
+        cmbKaryawan.setSelectedIndex(0);
+    }
+
+    private void tampilkanDataProyek() {
+        DefaultTableModel model = new DefaultTableModel();
+        model.addColumn("ID");
+        model.addColumn("Nama Proyek");
+        model.addColumn("Deskripsi");
+        model.addColumn("Durasi");
+        model.addColumn("Penanggung Jawab");
+
+        try {
+            String sql = "SELECT proyek.id_proyek, proyek.nama_proyek, proyek.deskripsi, proyek.durasi, karyawan.nama "
+                    + "FROM proyek JOIN karyawan ON proyek.id_karyawan = karyawan.id_karyawan";
+            Connection conn = config.Koneksi.getKoneksi();
+            Statement stm = conn.createStatement();
+            ResultSet res = stm.executeQuery(sql);
+
+            while (res.next()) {
+                model.addRow(new Object[]{
+                    res.getString(1), // ID Proyek
+                    res.getString(2), // Nama Proyek
+                    res.getString(3), // Deskripsi
+                    res.getString(4), // Durasi
+                    res.getString(5) // Penanggung Jawab
+                });
+            }
+            tblProyek.setModel(model);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Error: " + e.getMessage());
+        }
+    }
+
+    private void exportToCSV() {
+        try {
+            FileWriter writer = new FileWriter("proyek.csv");
+            writer.append("ID,Nama Proyek,Deskripsi,Durasi,Penanggung Jawab\n");
+
+            for (int i = 0; i < tblProyek.getRowCount(); i++) {
+                writer.append(tblProyek.getValueAt(i, 0).toString()); // ID
+                writer.append(",");
+                writer.append(tblProyek.getValueAt(i, 1).toString()); // Nama Proyek
+                writer.append(",");
+                writer.append(tblProyek.getValueAt(i, 2).toString()); // Deskripsi
+                writer.append(",");
+                writer.append(tblProyek.getValueAt(i, 3).toString()); // Durasi
+                writer.append(",");
+                writer.append(tblProyek.getValueAt(i, 4).toString()); // Penanggung Jawab
+                writer.append("\n");
+            }
+
+            writer.flush();
+            writer.close();
+            JOptionPane.showMessageDialog(null, "Data berhasil diekspor ke file proyek.csv!");
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(null, "Error saat mengekspor data: " + e.getMessage());
+        }
+    }
+
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        jPanel1 = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
+        txtNamaProyek = new javax.swing.JTextField();
+        txtDurasi = new javax.swing.JTextField();
+        cmbKaryawan = new javax.swing.JComboBox<>();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        txtDeskripsi = new javax.swing.JTextArea();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        tblProyek = new javax.swing.JTable();
+        btnTambah = new javax.swing.JButton();
+        btnEdit = new javax.swing.JButton();
+        btnHapus = new javax.swing.JButton();
+        btnRefresh = new javax.swing.JButton();
+        btnExport = new javax.swing.JButton();
+        btnKembali = new javax.swing.JButton();
+        jLabel6 = new javax.swing.JLabel();
+        txtIdProyek = new javax.swing.JTextField();
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+
+        jLabel1.setFont(new java.awt.Font("Times New Roman", 1, 24)); // NOI18N
+        jLabel1.setText("Kelola Proyek");
+
+        jLabel2.setText("Nama Proyek");
+
+        jLabel3.setText("Durasi (Hari)");
+
+        jLabel4.setText("Deskripsi");
+
+        jLabel5.setText("Penanggung Jawab");
+
+        txtDeskripsi.setColumns(20);
+        txtDeskripsi.setRows(5);
+        jScrollPane1.setViewportView(txtDeskripsi);
+
+        tblProyek.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
+        ));
+        tblProyek.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tblProyekMouseClicked(evt);
+            }
+        });
+        jScrollPane2.setViewportView(tblProyek);
+
+        btnTambah.setText("Tambah");
+        btnTambah.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnTambahActionPerformed(evt);
+            }
+        });
+
+        btnEdit.setText("Edit");
+        btnEdit.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnEditActionPerformed(evt);
+            }
+        });
+
+        btnHapus.setText("Hapus");
+        btnHapus.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnHapusActionPerformed(evt);
+            }
+        });
+
+        btnRefresh.setText("Refresh");
+        btnRefresh.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnRefreshActionPerformed(evt);
+            }
+        });
+
+        btnExport.setText("Report");
+        btnExport.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnExportActionPerformed(evt);
+            }
+        });
+
+        btnKembali.setText("Kembali");
+        btnKembali.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnKembaliActionPerformed(evt);
+            }
+        });
+
+        jLabel6.setText("ID");
+
+        txtIdProyek.setEditable(false);
+        txtIdProyek.setText("otomatis");
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel3)
+                                    .addComponent(jLabel4)
+                                    .addComponent(jLabel5))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(txtDurasi)
+                                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 225, Short.MAX_VALUE)
+                                    .addComponent(cmbKaryawan, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(jLabel2)
+                                .addGap(79, 79, 79)
+                                .addComponent(txtNamaProyek, javax.swing.GroupLayout.PREFERRED_SIZE, 225, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(82, 82, 82)
+                        .addComponent(jLabel6)
+                        .addGap(35, 35, 35)
+                        .addComponent(txtIdProyek, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 666, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(btnTambah, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btnHapus, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btnRefresh, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btnExport, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btnKembali, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btnEdit, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                    .addComponent(jLabel1))
+                .addContainerGap(68, Short.MAX_VALUE))
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addComponent(jLabel1)
+                .addGap(33, 33, 33)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel2)
+                    .addComponent(txtNamaProyek, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel6)
+                    .addComponent(txtIdProyek, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(41, 41, 41)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel3)
+                    .addComponent(txtDurasi, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(33, 33, 33)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jLabel4)
+                        .addGap(103, 103, 103)
+                        .addComponent(jLabel5))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(cmbKaryawan, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 19, Short.MAX_VALUE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 412, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(btnTambah)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(btnEdit)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(btnHapus)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(btnRefresh)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(btnExport)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(btnKembali)))
+                .addContainerGap())
+        );
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+
+        pack();
+    }// </editor-fold>//GEN-END:initComponents
+
+    private void btnTambahActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTambahActionPerformed
+        try {
+            String sql = "INSERT INTO proyek (nama_proyek, deskripsi, durasi, id_karyawan) VALUES (?, ?, ?, ?)";
+            Connection conn = config.Koneksi.getKoneksi();
+            PreparedStatement pst = conn.prepareStatement(sql);
+
+            pst.setString(1, txtNamaProyek.getText());
+            pst.setString(2, txtDeskripsi.getText());
+            pst.setInt(3, Integer.parseInt(txtDurasi.getText()));
+            pst.setInt(4, getIdKaryawanDariComboBox());
+
+            pst.execute();
+            JOptionPane.showMessageDialog(null, "Proyek berhasil ditambahkan!");
+            tampilkanDataProyek();
+            resetForm();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Error: " + e.getMessage());
+        }
+    }//GEN-LAST:event_btnTambahActionPerformed
+
+    private void btnEditActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditActionPerformed
+        try {
+            String sql = "UPDATE proyek SET nama_proyek=?, deskripsi=?, durasi=?, id_karyawan=? WHERE id_proyek=?";
+            Connection conn = config.Koneksi.getKoneksi();
+            PreparedStatement pst = conn.prepareStatement(sql);
+
+            pst.setString(1, txtNamaProyek.getText());
+            pst.setString(2, txtDeskripsi.getText());
+            pst.setInt(3, Integer.parseInt(txtDurasi.getText()));
+            pst.setInt(4, getIdKaryawanDariComboBox());
+            pst.setInt(5, Integer.parseInt(txtIdProyek.getText())); // ID Proyek dari tabel
+
+            pst.execute();
+            JOptionPane.showMessageDialog(null, "Proyek berhasil diperbarui!");
+            tampilkanDataProyek();
+            resetForm();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Error: " + e.getMessage());
+        }
+    }//GEN-LAST:event_btnEditActionPerformed
+
+    private void btnHapusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnHapusActionPerformed
+        try {
+            String sql = "DELETE FROM proyek WHERE id_proyek=?";
+            Connection conn = config.Koneksi.getKoneksi();
+            PreparedStatement pst = conn.prepareStatement(sql);
+
+            pst.setInt(1, Integer.parseInt(txtIdProyek.getText())); // ID Proyek dari tabel
+            pst.execute();
+            JOptionPane.showMessageDialog(null, "Proyek berhasil dihapus!");
+            tampilkanDataProyek();
+            resetForm();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Error: " + e.getMessage());
+        }
+    }//GEN-LAST:event_btnHapusActionPerformed
+
+    private void tblProyekMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblProyekMouseClicked
+        int row = tblProyek.getSelectedRow();
+        txtIdProyek.setText(tblProyek.getValueAt(row, 0).toString());
+        txtNamaProyek.setText(tblProyek.getValueAt(row, 1).toString());
+        txtDeskripsi.setText(tblProyek.getValueAt(row, 2).toString());
+        txtDurasi.setText(tblProyek.getValueAt(row, 3).toString());
+        cmbKaryawan.setSelectedItem(tblProyek.getValueAt(row, 4).toString());
+    }//GEN-LAST:event_tblProyekMouseClicked
+
+    private void btnExportActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExportActionPerformed
+        exportToCSV();
+    }//GEN-LAST:event_btnExportActionPerformed
+
+    private void btnKembaliActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnKembaliActionPerformed
+        new HalamanUtama().setVisible(true);
+        this.dispose(); // Menutup form saat ini
+    }//GEN-LAST:event_btnKembaliActionPerformed
+
+    private void btnRefreshActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRefreshActionPerformed
+        resetForm();
+    }//GEN-LAST:event_btnRefreshActionPerformed
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+        /* Set the Nimbus look and feel */
+        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         */
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ClassNotFoundException ex) {
+            java.util.logging.Logger.getLogger(FormProyek.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (InstantiationException ex) {
+            java.util.logging.Logger.getLogger(FormProyek.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            java.util.logging.Logger.getLogger(FormProyek.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(FormProyek.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        //</editor-fold>
+
+        /* Create and display the form */
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                new FormProyek().setVisible(true);
+            }
+        });
+    }
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnEdit;
+    private javax.swing.JButton btnExport;
+    private javax.swing.JButton btnHapus;
+    private javax.swing.JButton btnKembali;
+    private javax.swing.JButton btnRefresh;
+    private javax.swing.JButton btnTambah;
+    private javax.swing.JComboBox<String> cmbKaryawan;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JTable tblProyek;
+    private javax.swing.JTextArea txtDeskripsi;
+    private javax.swing.JTextField txtDurasi;
+    private javax.swing.JTextField txtIdProyek;
+    private javax.swing.JTextField txtNamaProyek;
+    // End of variables declaration//GEN-END:variables
+}
